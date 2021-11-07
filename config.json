@@ -1,0 +1,19 @@
+{
+"config":[
+        {"database":
+            {
+                "address": "",
+                "port": ,
+                "username": "",
+                "password": "",
+                "database": ""
+            },
+            "network":
+            {
+                "subnet": "",
+                "ipRangeStart": 2,
+                "ipRangeEnd": 250
+            }
+        }
+    ]
+}
