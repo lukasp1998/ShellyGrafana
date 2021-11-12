@@ -10,27 +10,41 @@ dataList = []
 # get Shellys from the List of Clients
 # get JSON from webserver and Test for "wifi_sta"
 def getDataFromShellys():
-    for client_ip in clients:
+
+    ip = ""
+    mac = ""
+
+    for clientIp in clients:
         try:
-            r = requests.get('http://' + client_ip + '/status')
-            if r:
-                if r.text.find("wifi_sta", 0, len(r.text)) >=0:
-                    ip = r.json()["wifi_sta"]["ip"]
-                    mac = r.json()["mac"]
-                    updateCheck = r.json()["update"]["has_update"]
+            rStatus = requests.get('http://' + clientIp + '/status')
+            if rStatus:
+                if rStatus.text.find("wifi_sta", 0, len(rStatus.text)) >=0:
+                    ip = rStatus.json()["wifi_sta"]["ip"]
+                    mac = rStatus.json()["mac"]
+                    temperature = rStatus.json()["temperature"]
+                    updateCheck = rStatus.json()["update"]["has_update"]
                     if updateCheck == 1:
                         updateCheck = 1
                     else:
                         updateCheck = 0
 
+                    try:
+                        rSettings = requests.get('http://' + clientIp + '/settings')
+                        if rSettings:
+                            hostname = rSettings.json()["device"]["hostname"]
+                            name = rSettings.json()["name"]
+
+                    except requests.exceptions.RequestException as e:
+                        print("Error on Device: " + clientIp)
+
                     # get Shelly Style, 1 or multiple meters/emeters
                     # CODE MUST BE OPTIMIZED FOR AUTO powerData CREATION
-                    if r.text.find("emeters", 0, len(r.text)) >=0:
-                        for emeter in range(0, len(r.json()["emeters"])):
+                    if rStatus.text.find("emeters", 0, len(rStatus.text)) >=0:
+                        for emeter in range(0, len(rStatus.json()["emeters"])):
                             watts = []
                             voltage = []
-                            watts.append(r.json()["emeters"][emeter]["power"])
-                            voltage.append(r.json()["emeters"][1]["voltage"])
+                            watts.append(rStatus.json()["emeters"][emeter]["power"])
+                            voltage.append(rStatus.json()["emeters"][1]["voltage"])
 
                             if len(watts) == 2:
                                 powerData = [
@@ -40,6 +54,10 @@ def getDataFromShellys():
                                             "mac": mac
                                         },
                                         "fields": {
+                                            "ip": ip,
+                                            "name": name,
+                                            "hostname": hostname,
+                                            "temperature": float(temperature),
                                             "updateCheck": float(updateCheck),
                                             "watts": float(watts[0]),
                                             "voltage": float(voltage[0]),
@@ -59,6 +77,9 @@ def getDataFromShellys():
                                         },
                                         "fields": {
                                             "ip": ip,
+                                            "name": name,
+                                            "hostname": hostname,
+                                            "temperature": float(temperature),
                                             "updateCheck": float(updateCheck),
                                             "watts": float(watts[0]),
                                             "voltage": float(voltage[0]),
@@ -71,7 +92,7 @@ def getDataFromShellys():
                                 ]
                                 dataList.append(powerData)
                     else:
-                        power = r.json()["meters"][0]["power"]
+                        power = rStatus.json()["meters"][0]["power"]
                         powerData = [
                             {
                                 "measurement": "shelly_watts",
@@ -80,6 +101,9 @@ def getDataFromShellys():
                                 },
                                 "fields": {
                                     "ip": ip,
+                                    "name": str(name),
+                                    "hostname": hostname,
+                                    "temperature": float(temperature),
                                     "updateCheck": float(updateCheck),
                                     "watts": float(power)
                                 }
@@ -88,13 +112,13 @@ def getDataFromShellys():
                         dataList.append(powerData)
 
                 else:
-                    print("NOT A SHELLY: " + client_ip)
+                    print("NOT A SHELLY: " + clientIp)
             else:
-                print("NOT A SHELLY: " + client_ip)
+                print("NOT A SHELLY: " + clientIp)
 
 
         except requests.exceptions.RequestException as e:
-            print("Error on Device: ")
+            print("Error on Device: " + clientIp)
 
 
 def readClientsFromFile(filePath):
@@ -127,12 +151,9 @@ def readConfig(filePath):
 
 if __name__ == '__main__':
     workingDirectory = os.getcwd()
-    print(workingDirectory)
     config = readConfig(workingDirectory + '/login.json')
-    print(config)
 
-    readClientsFromFile(workingDirectory + '/clients.json')
-
+    readClientsFromFile(workingDirectory + '/clients.txt')
     getDataFromShellys()
 
     # InFluxDB Connection
@@ -141,7 +162,7 @@ if __name__ == '__main__':
     username = config["config"][0]["database"]["username"]
     password = config["config"][0]["database"]["password"]
     database = config["config"][0]["database"]["database"]
-    sendDataToInflux(ipAddress, port, username, password, database)
+    #sendDataToInflux(ipAddress, port, username, password, database)
 
-
+    print("DATALIST:")
     print(dataList)
