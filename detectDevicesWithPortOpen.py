@@ -49,6 +49,8 @@ if __name__ == '__main__':
     print(workingDirectory)
     config = readConfig(workingDirectory + '/login.json')
 
+# AutoSubnet Detection missing
+
     subnet = config["config"][0]["network"]["subnet"]
     startIp = config["config"][0]["network"]["ipRangeStart"]
     endIp = config["config"][0]["network"]["ipRangeEnd"]
