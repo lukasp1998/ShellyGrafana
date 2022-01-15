@@ -115,7 +115,7 @@ if __name__ == '__main__':
     endPort = 80
     delay = 1
 
-    #networkScan(subnet, startIp, endIp, startPort, endPort, delay)
+    networkScan(subnet, startIp, endIp, startPort, endPort, delay)
     ## NETWORK SCAN FAST NOT WORKING AT THE MOMENT
-    networkScanFast(subnet, startIp, endIp, startPort, endPort, delay)
+    #networkScanFast(subnet, startIp, endIp, startPort, endPort, delay)
     safeClientsToFile(clients)

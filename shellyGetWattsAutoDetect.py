@@ -21,7 +21,7 @@ def getDataFromShellys():
                 if rStatus.text.find("wifi_sta", 0, len(rStatus.text)) >=0:
                     ip = rStatus.json()["wifi_sta"]["ip"]
                     mac = rStatus.json()["mac"]
-                    temperature = rStatus.json()["temperature"]
+#                    temperature = rStatus.json()["temperature"]
                     updateCheck = rStatus.json()["update"]["has_update"]
                     if updateCheck == 1:
                         updateCheck = 1
@@ -51,13 +51,14 @@ def getDataFromShellys():
                                     {
                                         "measurement": "shelly_watts",
                                         "tags": {
-                                            "mac": mac
+                                            "mac": mac,
+                                            "name": name
                                         },
                                         "fields": {
                                             "ip": ip,
                                             "name": name,
                                             "hostname": hostname,
-                                            "temperature": float(temperature),
+#                                            "temperature": float(temperature),
                                             "updateCheck": float(updateCheck),
                                             "watts": float(watts[0]),
                                             "voltage": float(voltage[0]),
@@ -73,13 +74,14 @@ def getDataFromShellys():
                                     {
                                         "measurement": "shelly_watts",
                                         "tags": {
-                                            "mac": mac
+                                            "mac": mac,
+                                            "name": name
                                         },
                                         "fields": {
                                             "ip": ip,
                                             "name": name,
                                             "hostname": hostname,
-                                            "temperature": float(temperature),
+#                                            "temperature": float(temperature),
                                             "updateCheck": float(updateCheck),
                                             "watts": float(watts[0]),
                                             "voltage": float(voltage[0]),
@@ -97,13 +99,14 @@ def getDataFromShellys():
                             {
                                 "measurement": "shelly_watts",
                                 "tags": {
-                                    "mac": mac
+                                    "mac": mac,
+                                    "name": name
                                 },
                                 "fields": {
                                     "ip": ip,
                                     "name": str(name),
                                     "hostname": hostname,
-                                    "temperature": float(temperature),
+#                                    "temperature": float(temperature),
                                     "updateCheck": float(updateCheck),
                                     "watts": float(power)
                                 }
@@ -162,7 +165,7 @@ if __name__ == '__main__':
     username = config["config"][0]["database"]["username"]
     password = config["config"][0]["database"]["password"]
     database = config["config"][0]["database"]["database"]
-    #sendDataToInflux(ipAddress, port, username, password, database)
+    sendDataToInflux(ipAddress, port, username, password, database)
 
-    print("DATALIST:")
-    print(dataList)
+#    print("DATALIST:")
+#    print(dataList)
