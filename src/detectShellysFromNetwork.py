@@ -33,7 +33,7 @@ def scanIp(ipNr, subnet, startPort, endPort, delay):
 # prints Time Needed for the Scan in Seconds
 def networkScan(subnet, startIp, endIp, startPort, endPort, delay):
     startTime = time.time()
-    for ipNr in range(startIp, endIp):
+    for ipNr in range(startIp, endIp+1):
         scanIp(ipNr, subnet, startPort, endPort, delay)
     log('Time taken:' + str(time.time() - startTime))
 
@@ -72,14 +72,18 @@ def networkScanFast(subnet, startIp, endIp, startPort, endPort, delay):
 
 
 def safeClientsToFile(dataToSave):
-    with open("configs/clients.txt", "r+") as txt_file:
+    with open("configs/clients.txt", "w") as txt_file:
+        #for line in dataToSave:
+        #    txt_file.write("".join(line) + "\n")
+        txt_file.seek(0)
         for line in dataToSave:
             txt_file.write("".join(line) + "\n")
+        txt_file.truncate()
 
 def run():
     workingDirectory = os.getcwd()
     log('Working Directory ' + workingDirectory)
-    config = readConfig(workingDirectory + '/configs/config.json')
+    config = readConfig('configs/config.json')
 
     # AutoSubnet Detection missing
     subnet = config["config"][0]["network"]["subnet"]
