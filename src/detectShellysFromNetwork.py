@@ -72,7 +72,7 @@ def networkScanFast(subnet, startIp, endIp, startPort, endPort, delay):
 
 
 def safeClientsToFile(dataToSave):
-    with open("configs/clients.txt", "w") as txt_file:
+    with open("configs/clients.txt", "r+") as txt_file:
         for line in dataToSave:
             txt_file.write("".join(line) + "\n")
 
