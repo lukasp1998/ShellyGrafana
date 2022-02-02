@@ -3,7 +3,7 @@
         {"database":
             {
                 "address": "",
-                "port": ,
+                "port": 8086,
                 "username": "",
                 "password": "",
                 "database": ""

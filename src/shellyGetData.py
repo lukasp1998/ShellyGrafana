@@ -1,7 +1,7 @@
 import json
 import requests
 import os
-from influxdb import InfluxDBClient
+from influxdb import *
 from helperFunction import *
 
 clients = []
@@ -133,9 +133,12 @@ def readClientsFromFile(filePath):
 
 
 def sendDataToInflux(ipAddress, port, username, password, database):
-    client = InfluxDBClient('localhost', port, username, password, database)
-    for data in dataList:
-        client.write_points(data)
+    try:
+        client = InfluxDBClient('localhost', port, username, password, database)
+        for data in dataList:
+            client.write_points(data)
+    except Exception as e:
+        print("Database Error: " + str(e))
 
 def readConfig(filePath):
     try:
@@ -145,6 +148,7 @@ def readConfig(filePath):
 
     except FileNotFoundError as e:
         print("NO CONFIG FILE FOUND!")
+        exit()
     except EnvironmentError as e:
         print("ooOOOPS " + e)
 
@@ -154,6 +158,7 @@ def run():
 
     readClientsFromFile(workingDirectory + '/configs/clients.txt')
     getDataFromShellys()
+    log("Clients From File: " + str(clients))
 
     # InFluxDB Connection
     ipAddress = config["config"][0]["database"]["address"]
@@ -161,7 +166,9 @@ def run():
     username = config["config"][0]["database"]["username"]
     password = config["config"][0]["database"]["password"]
     database = config["config"][0]["database"]["database"]
-    #sendDataToInflux(ipAddress, port, username, password, database)
+
+    ## TODO ad CODE to detect if DATABASE not found
+    sendDataToInflux(ipAddress, port, username, password, database)
     log("DATALIST:" + str(dataList))
 
 if __name__ == '__main__':

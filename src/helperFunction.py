@@ -21,5 +21,6 @@ def readConfig(filePath):
 
     except FileNotFoundError as e:
         print("NO CONFIG FILE FOUND!")
+        exit()
     except EnvironmentError as e:
         print("ooOOOPS " + e)

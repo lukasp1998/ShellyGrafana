@@ -1,24 +1,26 @@
-#import sched, time
 import schedule, time
-from shellyGetData import run
-from detectShellysFromNetwork import run
+import threading
+import shellyGetData
+import detectShellysFromNetwork
 from helperFunction import log, setDebug
 
 def getShellyDataIntoDatabase():
     # run function from shellyGetData
     log("getting Data from Shellys")
-    run()
+    shellyGetData.run()
     log("Done getting Data from Shellys")
 
 def detectShellys():
     # run function from detectShellysFromNetwork
     log("Detecting Shellys")
-    run()
+    t1 = threading.Thread(target=detectShellysFromNetwork.run())
+    t1.start()
     log("Done Detecting Shellys")
 
 def scheduling():
     schedule.every(30).seconds.do(getShellyDataIntoDatabase)
-    schedule.every(5).minutes.do(detectShellys)
+    schedule.every(15).minutes.do(detectShellys)
+    log("running State")
     while True:
         schedule.run_pending()
         time.sleep(1)
