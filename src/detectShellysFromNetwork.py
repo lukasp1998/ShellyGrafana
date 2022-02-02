@@ -8,7 +8,6 @@ from helperFunction import *
 # clients found to save Array
 clients = []
 # Debug Funktion, for Debug prints
-setDebug(True)
 
 # Scan Device, if Port 80 open and request on /shelly contains json, add to clients
 def scanIp(ipNr, subnet, startPort, endPort, delay):
@@ -73,17 +72,16 @@ def networkScanFast(subnet, startIp, endIp, startPort, endPort, delay):
 
 
 def safeClientsToFile(dataToSave):
-    with open("clients.txt", "w") as txt_file:
+    with open("configs/clients.txt", "w") as txt_file:
         for line in dataToSave:
             txt_file.write("".join(line) + "\n")
 
-if __name__ == '__main__':
+def run():
     workingDirectory = os.getcwd()
     log('Working Directory ' + workingDirectory)
-    config = readConfig(workingDirectory + '/config.json')
+    config = readConfig(workingDirectory + '/configs/config.json')
 
-# AutoSubnet Detection missing
-
+    # AutoSubnet Detection missing
     subnet = config["config"][0]["network"]["subnet"]
     startIp = config["config"][0]["network"]["ipRangeStart"]
     endIp = config["config"][0]["network"]["ipRangeEnd"]
@@ -91,9 +89,15 @@ if __name__ == '__main__':
     endPort = config["config"][0]["network"]["port"]
     delay = 1
 
+    log("Subnet:" + str(subnet) + " | Port: " + str(startPort) + "-" + str(endPort) + " | IP Range: " + str(startIp) + "-" + str(endIp))
+
     networkScan(subnet, startIp, endIp, startPort, endPort, delay)
     ## NETWORK SCAN FAST NOT WORKING AT THE MOMENT
-    #networkScanFast(subnet, startIp, endIp, startPort, endPort, delay)
+    # networkScanFast(subnet, startIp, endIp, startPort, endPort, delay)
     safeClientsToFile(clients)
 
     log('Clients found: ' + str(clients))
+
+if __name__ == '__main__':
+    setDebug(True)
+    run()

@@ -2,7 +2,7 @@ import json
 import requests
 import os
 from influxdb import InfluxDBClient
-
+from helperFunction import *
 
 clients = []
 dataList = []
@@ -10,10 +10,10 @@ dataList = []
 # get Shellys from the List of Clients
 # get JSON from webserver and Test for "wifi_sta"
 def getDataFromShellys():
-
     for clientIp in clients:
         try:
             rStatus = requests.get('http://' + clientIp + '/status')
+            log('IP= ' + clientIp)
             if rStatus:
                 if rStatus.text.find("wifi_sta", 0, len(rStatus.text)) >=0:
                     ip = rStatus.json()["wifi_sta"]["ip"]
@@ -148,12 +148,11 @@ def readConfig(filePath):
     except EnvironmentError as e:
         print("ooOOOPS " + e)
 
-
-if __name__ == '__main__':
+def run():
     workingDirectory = os.getcwd()
-    config = readConfig(workingDirectory + '/config.json')
+    config = readConfig(workingDirectory + '/configs/config.json')
 
-    readClientsFromFile(workingDirectory + '/clients.txt')
+    readClientsFromFile(workingDirectory + '/configs/clients.txt')
     getDataFromShellys()
 
     # InFluxDB Connection
@@ -163,5 +162,8 @@ if __name__ == '__main__':
     password = config["config"][0]["database"]["password"]
     database = config["config"][0]["database"]["database"]
     #sendDataToInflux(ipAddress, port, username, password, database)
+    log("DATALIST:" + str(dataList))
 
-    print("DATALIST:" + str(dataList))
+if __name__ == '__main__':
+    setDebug(True)
+    run()

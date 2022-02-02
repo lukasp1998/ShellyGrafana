@@ -4,6 +4,7 @@ import json
 # logging Funktion to get prints Only when needed for Debugging Purpose
 DEBUG = False
 def setDebug(status):
+    global DEBUG
     DEBUG = status
 
 # Print Logging Message

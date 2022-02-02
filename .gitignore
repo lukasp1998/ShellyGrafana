@@ -163,6 +163,6 @@ Thumbs.db
 .idea/
 out/
 
-config.json
+configs/config.json
 login.json
-clients.txt
+configs/clients.txt
