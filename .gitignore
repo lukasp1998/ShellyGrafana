@@ -163,5 +163,6 @@ Thumbs.db
 .idea/
 out/
 
+config.json
 login.json
 clients.txt

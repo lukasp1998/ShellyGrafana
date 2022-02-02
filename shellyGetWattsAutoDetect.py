@@ -11,9 +11,6 @@ dataList = []
 # get JSON from webserver and Test for "wifi_sta"
 def getDataFromShellys():
 
-    ip = ""
-    mac = ""
-
     for clientIp in clients:
         try:
             rStatus = requests.get('http://' + clientIp + '/status')
@@ -132,7 +129,7 @@ def readClientsFromFile(filePath):
     except FileNotFoundError as e:
         print("NO CLIENTS FILE FOUND!")
     except EnvironmentError as e:
-        print("ooOOOPS " + e)
+        print("ooOOOPS, No Idea what happend!" + e)
 
 
 def sendDataToInflux(ipAddress, port, username, password, database):
@@ -154,7 +151,7 @@ def readConfig(filePath):
 
 if __name__ == '__main__':
     workingDirectory = os.getcwd()
-    config = readConfig(workingDirectory + '/login.json')
+    config = readConfig(workingDirectory + '/config.json')
 
     readClientsFromFile(workingDirectory + '/clients.txt')
     getDataFromShellys()
@@ -165,7 +162,6 @@ if __name__ == '__main__':
     username = config["config"][0]["database"]["username"]
     password = config["config"][0]["database"]["password"]
     database = config["config"][0]["database"]["database"]
-    sendDataToInflux(ipAddress, port, username, password, database)
+    #sendDataToInflux(ipAddress, port, username, password, database)
 
-#    print("DATALIST:")
-#    print(dataList)
+    print("DATALIST:" + str(dataList))

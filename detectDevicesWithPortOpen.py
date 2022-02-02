@@ -2,17 +2,19 @@ import threading
 from socket import *
 import time
 import os
-import json
+import requests
+from helperFunction import *
 
+# clients found to save Array
 clients = []
+# Debug Funktion, for Debug prints
+setDebug(True)
 
-# Network Scanner to detect Devices with open Ports
-def networkScan(subnet, startIp, endIp, startPort, endPort, delay):
-    startTime = time.time()
-    for ipNr in range(startIp, endIp):
-
+# Scan Device, if Port 80 open and request on /shelly contains json, add to clients
+def scanIp(ipNr, subnet, startPort, endPort, delay):
         t_IP = gethostbyname(subnet + str(ipNr))
         #print('Starting scan on host: ', t_IP)
+        log(t_IP)
 
         for i in range(startPort, endPort+1):
 
@@ -22,32 +24,19 @@ def networkScan(subnet, startIp, endIp, startPort, endPort, delay):
             conn = s.connect_ex((t_IP, i))
             if (conn == 0):
                 #print('Port %d: OPEN' % (i,))
-                clients.append(t_IP)
+                resp = requests.get('http://' + t_IP + '/shelly')
+                if resp.headers.get('content-type') == 'application/json':
+                    clients.append(t_IP)
+                    log(t_IP)
             s.close()
-    print('Time taken:', time.time() - startTime)
-    print(clients)
 
-# Thread for Faster Network Scanner
-def scanIpRangeThread(subnet, startIp, endIp, startPort, endPort, delay):
-     clientList = []
-     for ipNr in range(int(startIp), int(endIp)):
-         t_IP = gethostbyname(subnet + str(ipNr))
-         print('Starting scan on host: ', t_IP)
-
-         for i in range(startPort, endPort + 1):
-
-             s = socket(AF_INET, SOCK_STREAM)
-
-             s.settimeout(delay)
-             conn = s.connect_ex((t_IP, i))
-             if (conn == 0):
-                 print('Port %d: OPEN' % (i,))
-                 clientList.append(t_IP)
-             s.close()
-     #for ip in clientList:
-     #    clients.append(ip)
-     #clients.insert(clientList)
-     clients.extend(clientList)
+# for loop throuw the given IpRange and calls the Scanner
+# prints Time Needed for the Scan in Seconds
+def networkScan(subnet, startIp, endIp, startPort, endPort, delay):
+    startTime = time.time()
+    for ipNr in range(startIp, endIp):
+        scanIp(ipNr, subnet, startPort, endPort, delay)
+    log('Time taken:' + str(time.time() - startTime))
 
 # Faster Mutithreaded Network Scan
 ### TODO
@@ -71,7 +60,7 @@ def networkScanFast(subnet, startIp, endIp, startPort, endPort, delay):
     threads.append(t4)
 
 
-    print(threads)
+    log(threads)
     # Starting threads
     for i in range(threadCount):
         threads[i].start()
@@ -80,42 +69,31 @@ def networkScanFast(subnet, startIp, endIp, startPort, endPort, delay):
     for i in range(threadCount):
         threads[i].join()
 
-    print(clients)
+    log(clients)
 
 
 def safeClientsToFile(dataToSave):
     with open("clients.txt", "w") as txt_file:
         for line in dataToSave:
             txt_file.write("".join(line) + "\n")
-    #save("clients", dataToSave)
-
-def readConfig(filePath):
-    try:
-        with open(filePath, "r") as json_file:
-            config = json.load(json_file)
-            return config
-
-    except FileNotFoundError as e:
-        print("NO CONFIG FILE FOUND!")
-    except EnvironmentError as e:
-        print("ooOOOPS " + e)
-
 
 if __name__ == '__main__':
     workingDirectory = os.getcwd()
-    print(workingDirectory)
-    config = readConfig(workingDirectory + '/login.json')
+    log('Working Directory ' + workingDirectory)
+    config = readConfig(workingDirectory + '/config.json')
 
 # AutoSubnet Detection missing
 
     subnet = config["config"][0]["network"]["subnet"]
     startIp = config["config"][0]["network"]["ipRangeStart"]
     endIp = config["config"][0]["network"]["ipRangeEnd"]
-    startPort = 80
-    endPort = 80
+    startPort = config["config"][0]["network"]["port"]
+    endPort = config["config"][0]["network"]["port"]
     delay = 1
 
     networkScan(subnet, startIp, endIp, startPort, endPort, delay)
     ## NETWORK SCAN FAST NOT WORKING AT THE MOMENT
     #networkScanFast(subnet, startIp, endIp, startPort, endPort, delay)
     safeClientsToFile(clients)
+
+    log('Clients found: ' + str(clients))
