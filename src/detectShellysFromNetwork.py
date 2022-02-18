@@ -37,39 +37,6 @@ def networkScan(subnet, startIp, endIp, startPort, endPort, delay):
         scanIp(ipNr, subnet, startPort, endPort, delay)
     log('Time taken:' + str(time.time() - startTime))
 
-# Faster Mutithreaded Network Scan
-### TODO
-def networkScanFast(subnet, startIp, endIp, startPort, endPort, delay):
-    threads = []  # To run TCP_connect concurrently
-    output = {}  # For printing purposes
-    threadCount = 4
-    # Spawning threads to scan ports
-    #for i in range(threadCount):
-    #    t = threading.Thread(target=scanIpRangeThread, args=(subnet, startIp, endIp, startPort, endPort, delay))
-    #    threads.append(t)
-
-    t1 = threading.Thread(target=scanIpRangeThread, args=(subnet, 2, 64, startPort, endPort, delay))
-    t2 = threading.Thread(target=scanIpRangeThread, args=(subnet, 65, 127, startPort, endPort, delay))
-    t3 = threading.Thread(target=scanIpRangeThread, args=(subnet, 125, 189, startPort, endPort, delay))
-    t4 = threading.Thread(target=scanIpRangeThread, args=(subnet, 190, 250, startPort, endPort, delay))
-
-    threads.append(t1)
-    threads.append(t2)
-    threads.append(t3)
-    threads.append(t4)
-
-
-    log(threads)
-    # Starting threads
-    for i in range(threadCount):
-        threads[i].start()
-
-    # Locking the main thread until all threads complete
-    for i in range(threadCount):
-        threads[i].join()
-
-    log(clients)
-
 
 def safeClientsToFile(dataToSave):
     with open("configs/clients.txt", "w") as txt_file:
@@ -96,8 +63,6 @@ def run():
     log("Subnet:" + str(subnet) + " | Port: " + str(startPort) + "-" + str(endPort) + " | IP Range: " + str(startIp) + "-" + str(endIp))
 
     networkScan(subnet, startIp, endIp, startPort, endPort, delay)
-    ## NETWORK SCAN FAST NOT WORKING AT THE MOMENT
-    # networkScanFast(subnet, startIp, endIp, startPort, endPort, delay)
     safeClientsToFile(clients)
 
     log('Clients found: ' + str(clients))
