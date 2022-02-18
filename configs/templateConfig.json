@@ -13,7 +13,7 @@
                 "subnet": "",
                 "ipRangeStart": 2,
                 "ipRangeEnd": 250,
-                "port": 80,
+                "port": 80
             }
         }
     ]

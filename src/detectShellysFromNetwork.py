@@ -72,7 +72,7 @@ def networkScanFast(subnet, startIp, endIp, startPort, endPort, delay):
 
 
 def safeClientsToFile(dataToSave):
-    with open("configs/clients.txt", "w") as txt_file:
+    with open("../configs/clients.txt", "w") as txt_file:
         #for line in dataToSave:
         #    txt_file.write("".join(line) + "\n")
         txt_file.seek(0)
@@ -83,7 +83,7 @@ def safeClientsToFile(dataToSave):
 def run():
     workingDirectory = os.getcwd()
     log('Working Directory ' + workingDirectory)
-    config = readConfig('configs/config.json')
+    config = readConfig("../configs/config.json")
 
     # AutoSubnet Detection missing
     subnet = config["config"][0]["network"]["subnet"]
